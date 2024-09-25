@@ -41,3 +41,11 @@ func haversine(lat1, lon1, lat2, lon2 float64) float64 {
 
 	return d
 } 
+
+func getState(speed float64) string {
+	if speed > 10 {
+		return "MOVING"
+	}
+	return "IDLE"
+}
+
