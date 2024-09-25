@@ -63,3 +63,65 @@ func getRate(segment Segment) float64 {
 	}
 }
 
+func processDelivery(deliveryID string, points []Point, fareCalculator *FareCalculator) {
+	defer fareCalculator.waitGroup.Done()
+
+	var totalFare float64 = 1.30
+	var validPoints []Point
+	
+	for i := 0; i < len(points) - 1; i++ {
+		p1 := points[i]
+		p2 := points[i+1]
+
+		duration := p2.Timestamp.Sub(p1.Timestamp).Hours()
+		if duration <= 0 {
+			continue
+		}
+
+		distance := haversine(p1.Lat, p1.Lng, p2.Lat, p2.Lng)
+		speed := distance / duration
+
+		if speed > 100 {
+			continue
+		}
+		validPoints = append(validPoints, p1)
+	}
+
+	//Validate last point
+	if len(points) > 0 {
+		validPoints = append(validPoints, points[len(points) - 1])
+	}
+
+	for i := 0; i < len(validPoints) - 1; i++ {
+		p1 := validPoints[i]
+		p2 := validPoints[i + 1]
+
+		duration := p2.Timestamp.Sub(p1.Timestamp).Hours()
+		if duration <= 0 {
+			continue
+		}
+
+		distance := haversine(p1.Lat, p1.Lng, p2.Lat, p2.Lng)
+		speed := distance / duration
+
+		segment := Segment {
+			P1: p1,
+			P2: p2,
+			Speed: speed,
+			Distance: distance,
+			Duration: duration,
+		}
+		
+		rate := getRate(segment)
+		totalFare += rate
+	}
+
+	if totalFare < 3.47 {
+		totalFare = 3.47
+	}
+
+	fareCalculator.mu.Lock()
+	fareCalculator.fares[deliveryID] = totalFare
+	fareCalculator.mu.Unlock()
+}
+
