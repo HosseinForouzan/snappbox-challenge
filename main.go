@@ -133,7 +133,7 @@ func processDelivery(deliveryID string, points []Point, fareCalculator *FareCalc
 	fareCalculator.mu.Unlock()
 }
 
-func main() {
+func calculateFares(inputFileName string, outputFileName string) error {
 	inputFile, err := os.Open("sample_data.csv")
 	if err != nil {
 		fmt.Println("Error in opening the file.", err)
@@ -225,6 +225,17 @@ func main() {
 		writer.Write(record)
 
 	}
+	return nil
+
+}
+
+func main() {
+	err := calculateFares("sample_data.csv", "output.csv")
+	if err != nil {
+		fmt.Println("Error.", err)
+		os.Exit(1)
+	}
 	fmt.Println("The process has done!")
+
 
 }
