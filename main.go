@@ -49,3 +49,17 @@ func getState(speed float64) string {
 	return "IDLE"
 }
 
+func getRate(segment Segment) float64 {
+	state := getState(segment.Speed)
+	if state == "MOVING" {
+		hour := segment.P1.Timestamp.Hour()
+		if hour >= 5 && hour < 24 {
+			return 0.74 * segment.Distance
+		} else {
+			return 1.30 * segment.Distance
+		}
+	} else {
+		return 11.90 * segment.Duration
+	}
+}
+
