@@ -4,8 +4,9 @@ import (
     "math"
     "testing"
     "time"
+	"os"
+	"strings"
 )
-
 func TestHaversine(t *testing.T) {
     lat1 := 36.12
     lon1 := -86.67
@@ -68,5 +69,71 @@ func TestGetRate(t *testing.T) {
 
     if math.Abs(rate-expectedRate) > 0.01 {
         t.Errorf("We expected %.2f but got %.2f", rate, expectedRate)
+    }
+}
+
+func TestEndToEnd(t *testing.T) {
+    // Create sample input file
+    inputFileName := "test_input.csv"
+    outputFileName := "test_output.csv"
+
+    inputData := `1,35.0,51.0,1696156800
+1,35.1,51.1,1696157400
+1,35.2,51.2,1696158000
+2,36.0,52.0,1696158600
+2,36.1,52.1,1696159200`
+
+    err := os.WriteFile(inputFileName, []byte(inputData), 0644)
+    if err != nil {
+        t.Fatalf("Error writing input file: %v", err)
+    }
+    defer os.Remove(inputFileName)
+    // defer os.Remove(outputFileName)
+
+    // Run fare calculation
+    err = calculateFares(inputFileName, outputFileName)
+    if err != nil {
+        t.Fatalf("Error executing CalculateFares: %v", err)
+    }
+
+    // Read and verify output file
+    outputData, err := os.ReadFile(outputFileName)
+    if err != nil {
+        t.Fatalf("Error reading output file: %v", err)
+    }
+
+    outputLines := strings.Split(strings.TrimSpace(string(outputData)), "\n")
+    if len(outputLines) != 2 {
+        t.Fatalf("Unexpected number of output lines: %d", len(outputLines))
+    }
+
+    // Create a map to check results
+    fares := make(map[string]string)
+    for _, line := range outputLines {
+        fields := strings.Split(line, ",")
+        if len(fields) != 2 {
+            t.Fatalf("Invalid output line format: %s", line)
+        }
+        fares[fields[0]] = fields[1]
+    }
+
+    // Check fare for delivery 1
+    if fare, ok := fares["1"]; ok {
+        expectedFare := "3.47" // Minimum fare
+        if fare != expectedFare {
+            t.Errorf("Fare for delivery 1 should be %s, but got %s", expectedFare, fare)
+        }
+    } else {
+        t.Errorf("Delivery 1 not found in output")
+    }
+
+    // Check fare for delivery 2
+    if fare, ok := fares["2"]; ok {
+        expectedFare := "3.47" // Minimum fare
+        if fare != expectedFare {
+            t.Errorf("Fare for delivery 2 should be %s, but got %s", expectedFare, fare)
+        }
+    } else {
+        t.Errorf("Delivery 2 not found in output")
     }
 }
