@@ -6,12 +6,10 @@ This project is a Go program designed to estimate delivery fares based on GPS da
 
 - [Overview](#overview)
 - [Features](#features)
-- [Prerequisites](#prerequisites)
 - [Usage](#usage)
 - [Implementation Details](#implementation-details)
 - [Testing](#testing)
-- [Contributing](#contributing)
-- [License](#license)
+
 
 ## Overview
 
@@ -25,28 +23,18 @@ Couriers perform thousands of deliveries daily, and it's crucial to ensure accur
 
 - **Data Filtering**: Removes GPS points where the calculated speed between two points exceeds 100 km/h.
 - **Fare Calculation**:
-  - Charges a standard flag amount of **€1.30** at the start of each delivery.
+  - Charges a standard flag amount of **1.30** at the start of each delivery.
   - Applies different rates based on the courier's state (moving or idle) and time of day.
-  - Ensures a minimum delivery fare of **€3.47**.
+  - Ensures a minimum delivery fare of **3.47**.
 - **Concurrency**: Processes multiple deliveries concurrently, utilizing Goroutines and Channels for high performance.
 - **Scalability**: Capable of processing large datasets (several gigabytes) efficiently.
 - **Error Handling**: Manages errors gracefully and logs informative messages.
 
-## Prerequisites
 
-- Go version 1.16 or higher installed on your system.
-- Basic understanding of Go programming and command-line operations.
 
 ## Usage
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/yourusername/delivery-fare-estimator.git
-cd delivery-fare-estimator
-```
-
-### 2. Prepare the Input Data
+### 1. Prepare the Input Data
 
 - Place your input CSV file named `input.csv` in the project directory.
 - The CSV file should have the following format:
@@ -60,21 +48,21 @@ cd delivery-fare-estimator
   - `lng`: Longitude (float64).
   - `timestamp`: Unix timestamp in seconds (int64).
 
-### 3. Build the Program
+### 2. Build the Program
 
 ```bash
-go build -o fare_estimator
+go build -o fare_estimato
 ```
 
-### 4. Run the Program
+### 3. Run the Program
 
 ```bash
-./fare_estimator
+./snapp
 ```
 
 - The program will read `input.csv` and generate `output.csv` containing fare estimates.
 
-### 5. Check the Output
+### 4. Check the Output
 
 - The `output.csv` file will have the following format:
 
@@ -166,30 +154,4 @@ func haversine(lat1, lon1, lat2, lon2 float64) float64 {
 go test -v
 ```
 
-## Contributing
 
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository.
-2. Create a new branch:
-
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-3. Make your changes and commit them with descriptive messages.
-4. Push to your forked repository:
-
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-5. Create a pull request detailing your changes.
-
-## License
-
-This project is open-source and available under the [MIT License](LICENSE).
-
-## Contact
-
-For any questions or suggestions, please open an issue or contact the project maintainer.
