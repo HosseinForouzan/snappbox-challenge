@@ -1,8 +1,15 @@
 package main
+
 import (
-	"time"
-	"sync"
+	"bufio"
+	"encoding/csv"
+	"fmt"
 	"math"
+	"os"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
 )
 
 type Point struct {
@@ -114,6 +121,7 @@ func processDelivery(deliveryID string, points []Point, fareCalculator *FareCalc
 		
 		rate := getRate(segment)
 		totalFare += rate
+		fmt.Println(deliveryID, rate, totalFare)
 	}
 
 	if totalFare < 3.47 {
@@ -125,3 +133,98 @@ func processDelivery(deliveryID string, points []Point, fareCalculator *FareCalc
 	fareCalculator.mu.Unlock()
 }
 
+func main() {
+	inputFile, err := os.Open("sample_data.csv")
+	if err != nil {
+		fmt.Println("Error in opening the file.", err)
+	}
+
+	defer inputFile.Close()
+
+	scanner := bufio.NewScanner(inputFile)
+	fareCalculator := FareCalculator {
+		fares: make(map[string]float64),
+	}
+
+	var currentDeliveryID string
+	var points []Point
+
+	semaphore := make(chan struct{}, 10) //Limit number of goroutines
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		fields := strings.Split(line, ",")
+
+		//check correctness of input
+		if len(fields) != 4 {
+			continue
+		}
+
+		deliveryID := fields[0]
+		lat, err1 := strconv.ParseFloat(fields[1], 64)
+		lng, err2 := strconv.ParseFloat(fields[2], 64)
+		timestampInt, err3 := strconv.ParseInt(fields[3], 10, 64)
+
+		if err1 != nil || err2 != nil || err3 != nil {
+			continue
+		}
+
+		timestamp := time.Unix(timestampInt, 0)
+		
+		point := Point {
+			DeliveryID: deliveryID,
+			Lat: lat,
+			Lng: lng,
+			Timestamp: timestamp,
+		}
+
+		if currentDeliveryID == "" {
+			currentDeliveryID = deliveryID
+		}
+
+		if deliveryID != currentDeliveryID {
+			semaphore <- struct{}{}
+			fareCalculator.waitGroup.Add(1)
+			go func (deliveryID string, points []Point)  {
+				processDelivery(deliveryID, points, &fareCalculator)
+				<-semaphore
+			}(currentDeliveryID, points)
+
+			currentDeliveryID = deliveryID
+			points = []Point{point}
+		}else {
+			points = append(points, point)
+		}
+
+	}
+
+	// process the last one
+	if len(points) > 0 {
+        semaphore <- struct{}{}
+        fareCalculator.waitGroup.Add(1)
+        go func(deliveryID string, points []Point) {
+            processDelivery(deliveryID, points, &fareCalculator)
+            <-semaphore
+        }(currentDeliveryID, points)
+    }
+
+    fareCalculator.waitGroup.Wait()
+	
+	outputFile, err := os.Create("output.csv")
+	if err != nil {
+		fmt.Println("Error in creating the output file.", err)
+	}
+
+	defer outputFile.Close()
+
+	writer := csv.NewWriter(outputFile)
+	defer writer.Flush()
+
+	for deliveryID, fare := range fareCalculator.fares {
+		record := []string{deliveryID, fmt.Sprintf("%.2f", fare)}
+		writer.Write(record)
+
+	}
+	fmt.Println("The process has done!")
+
+}
