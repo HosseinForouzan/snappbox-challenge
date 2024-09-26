@@ -36,7 +36,7 @@ Couriers perform thousands of deliveries daily, and it's crucial to ensure accur
 
 ### 1. Prepare the Input Data
 
-- Place your input CSV file named `input.csv` in the project directory.
+- Place your input CSV file named `sample_data.csv` in the project directory.
 - The CSV file should have the following format:
 
   ```
@@ -51,7 +51,7 @@ Couriers perform thousands of deliveries daily, and it's crucial to ensure accur
 ### 2. Build the Program
 
 ```bash
-go build -o fare_estimato
+go build -o fare_estimate
 ```
 
 ### 3. Run the Program
@@ -91,8 +91,8 @@ go build -o fare_estimato
 |                     | Time of day (00:00 to 05:00)    | €1.30 per km                  |
 | **IDLE (U ≤ 10 km/h)**  | Always                          | €11.90 per hour of idle time   |
 
-- **Flag Amount**: A standard charge of **€1.30** at the start of each delivery.
-- **Minimum Fare**: The total fare for each delivery should be at least **€3.47**.
+- **Flag Amount**: A standard charge of **1.30** at the start of each delivery.
+- **Minimum Fare**: The total fare for each delivery should be at least **3.47**.
 
 ### Data Filtering
 
