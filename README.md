@@ -130,7 +130,7 @@ func haversine(lat1, lon1, lat2, lon2 float64) float64 {
 
 ### Unit Tests
 
-- Located in `fare_estimator_test.go`.
+- Located in `main_test.go`.
 - Test individual functions like `haversine`, `getState`, and `getRate`.
 - Run unit tests using:
 
