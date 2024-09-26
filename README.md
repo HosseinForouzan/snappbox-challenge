@@ -87,9 +87,9 @@ go build -o fare_estimate
 
 | **State**           | **Applicable When**             | **Fare Amount**               |
 |---------------------|---------------------------------|-------------------------------|
-| **MOVING (U > 10 km/h)** | Time of day (05:00 to 00:00)    | €0.74 per km                  |
-|                     | Time of day (00:00 to 05:00)    | €1.30 per km                  |
-| **IDLE (U ≤ 10 km/h)**  | Always                          | €11.90 per hour of idle time   |
+| **MOVING (U > 10 km/h)** | Time of day (05:00 to 00:00)    | 0.74 per km                  |
+|                     | Time of day (00:00 to 05:00)    | 1.30 per km                  |
+| **IDLE (U ≤ 10 km/h)**  | Always                          | 11.90 per hour of idle time   |
 
 - **Flag Amount**: A standard charge of **1.30** at the start of each delivery.
 - **Minimum Fare**: The total fare for each delivery should be at least **3.47**.
